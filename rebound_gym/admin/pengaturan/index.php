@@ -45,7 +45,7 @@ include '../../includes/sidebar-admin.php';
                     <h6 class="mb-0 fw-bold">Informasi Gym</h6>
                 </div>
                 <div class="card-body">
-                    <form method="POST">
+                    <form method="POST" id="formSettings">
                         <input type="hidden" name="simpan_settings" value="1">
                         <div class="row g-3">
                             <div class="col-md-6">
@@ -54,7 +54,11 @@ include '../../includes/sidebar-admin.php';
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label fw-bold">No. Telepon / WhatsApp</label>
-                                <input type="text" name="no_telp" class="form-control" value="<?php echo $current['no_telp'] ?? '0812-3456-7890'; ?>">
+                                <input type="text" name="no_telp" id="inputNoTelp" class="form-control" value="<?php echo $current['no_telp'] ?? ''; ?>" placeholder="Contoh: 081234567890">
+                                <!-- Pesan Error -->
+                                <div id="errorNoTelp" class="invalid-feedback d-none" style="font-size: 12px; color: #ef4444; margin-top: 5px;">
+                                    <i class="fas fa-exclamation-circle me-1"></i>Hanya angka yang diperbolehkan!
+                                </div>
                             </div>
                             <div class="col-12">
                                 <label class="form-label fw-bold">Alamat Lengkap</label>
@@ -65,7 +69,7 @@ include '../../includes/sidebar-admin.php';
                                 <input type="email" name="email" class="form-control" value="<?php echo $current['email'] ?? 'admin@reboundgym.com'; ?>">
                             </div>
                             <div class="col-12 mt-4">
-                                <button type="submit" class="btn btn-primary px-4">
+                                <button type="submit" id="btnSimpan" class="btn btn-primary px-4">
                                     <i class="fas fa-save me-2"></i>Simpan Perubahan
                                 </button>
                             </div>
@@ -104,5 +108,71 @@ include '../../includes/sidebar-admin.php';
         </div>
     </div>
 </div>
+
+<!-- JavaScript untuk Validasi No. Telepon -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const inputNoTelp = document.getElementById('inputNoTelp');
+    const errorNoTelp = document.getElementById('errorNoTelp');
+    const formSettings = document.getElementById('formSettings');
+    const btnSimpan = document.getElementById('btnSimpan');
+    
+    // Fungsi untuk cek apakah input hanya angka
+    function validatePhoneNumber(value) {
+        // Hapus semua karakter non-angka (spasi, dash, dll)
+        const cleaned = value.replace(/[^0-9]/g, '');
+        return cleaned === value || value === '';
+    }
+    
+    // Event listener saat user mengetik
+    inputNoTelp.addEventListener('input', function() {
+        const value = this.value;
+        
+        if (!validatePhoneNumber(value)) {
+            // Tampilkan error
+            this.classList.add('is-invalid');
+            errorNoTelp.classList.remove('d-none');
+            errorNoTelp.innerHTML = '<i class="fas fa-exclamation-circle me-1"></i>Hanya angka yang diperbolehkan!';
+        } else {
+            // Sembunyikan error
+            this.classList.remove('is-invalid');
+            errorNoTelp.classList.add('d-none');
+        }
+    });
+    
+    // Event listener saat form di-submit
+    formSettings.addEventListener('submit', function(e) {
+        const value = inputNoTelp.value;
+        
+        if (!validatePhoneNumber(value) && value !== '') {
+            e.preventDefault(); // Cegah submit
+            inputNoTelp.classList.add('is-invalid');
+            errorNoTelp.classList.remove('d-none');
+            inputNoTelp.focus();
+            
+            // Animasi shake pada input
+            inputNoTelp.style.animation = 'shake 0.5s';
+            setTimeout(() => {
+                inputNoTelp.style.animation = '';
+            }, 500);
+        }
+    });
+    
+    // Optional: Auto-format saat blur (fokus keluar dari input)
+    inputNoTelp.addEventListener('blur', function() {
+        // Hapus karakter non-angka otomatis
+        this.value = this.value.replace(/[^0-9]/g, '');
+    });
+});
+</script>
+
+<!-- CSS untuk animasi shake -->
+<style>
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+</style>
 
 <?php include '../../includes/footer.php'; ?>
